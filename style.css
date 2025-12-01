@@ -6,15 +6,7 @@ body {
   text-align: center;
 }
 
-/* ❤️ Patterned border frame */
-.border-frame {
-  border: 40px solid transparent;
-  padding: 20px;
-  min-height: 100vh;
-  border-image-source: url("images/x.png");
-  border-image-slice: 30;
-  border-image-repeat: round;
-}
+
 
 /* center content */
 .container {
