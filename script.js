@@ -13,35 +13,32 @@ let isGameOver = false;
 let vsComputer = false;
 let computerLevel = 'easy';
 
-// X and O images
-const X_IMG = 'https://i.imgur.com/3e1XJrA.png';
-const O_IMG = 'https://i.imgur.com/Yz9tXKU.png';
+// Image URLs
+const X_IMG = 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Red_X.svg/1200px-Red_X.svg.png';
+const O_IMG = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Blue_circle.svg/1024px-Blue_circle.svg.png';
 
-// Winning combinations with line positions
 const winCombos = [
-  { combo:[0,1,2], style: 'translateY(0px) scaleX(1) rotate(0deg)' },
-  { combo:[3,4,5], style: 'translateY(125px) scaleX(1) rotate(0deg)' },
-  { combo:[6,7,8], style: 'translateY(250px) scaleX(1) rotate(0deg)' },
-  { combo:[0,3,6], style: 'translateX(0px) scaleX(1) rotate(90deg)' },
-  { combo:[1,4,7], style: 'translateX(125px) scaleX(1) rotate(90deg)' },
-  { combo:[2,5,8], style: 'translateX(250px) scaleX(1) rotate(90deg)' },
-  { combo:[0,4,8], style: 'translate(0,0) rotate(45deg) scaleX(1.5)' },
-  { combo:[2,4,6], style: 'translate(0,0) rotate(-45deg) scaleX(1.5)' },
+  { combo: [0,1,2], style: 'translateY(0px)' },
+  { combo: [3,4,5], style: 'translateY(130px)' },
+  { combo: [6,7,8], style: 'translateY(260px)' },
+  { combo: [0,3,6], style: 'translateX(0px) rotate(90deg)' },
+  { combo: [1,4,7], style: 'translateX(130px) rotate(90deg)' },
+  { combo: [2,5,8], style: 'translateX(260px) rotate(90deg)' },
+  { combo: [0,4,8], style: 'rotate(45deg) translateY(0)' },
+  { combo: [2,4,6], style: 'rotate(-45deg) translateY(0)' }
 ];
 
-// Mode selection
 twoPlayerBtn.addEventListener('click', () => {
   vsComputer = false;
-  difficultyContainer.style.display = 'none';
+  difficultyContainer.style.display = "none";
   resetGame();
 });
 
 computerBtn.addEventListener('click', () => {
   vsComputer = true;
-  difficultyContainer.style.display = 'block';
+  difficultyContainer.style.display = "block";
 });
 
-// Difficulty selection
 difficultyBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     computerLevel = btn.dataset.level;
@@ -49,7 +46,6 @@ difficultyBtns.forEach(btn => {
   });
 });
 
-// Cell click
 cells.forEach(cell => cell.addEventListener('click', cellClick));
 
 function cellClick(e) {
@@ -59,137 +55,129 @@ function cellClick(e) {
   makeMove(index, currentPlayer);
 
   const win = checkWin(currentPlayer);
-  if (win) {
-    showWinningLine(win.style);
-    statusText.textContent = `${currentPlayer} wins! 🎉`;
-    isGameOver = true;
-    return;
-  }
+  if (win) return endGame(currentPlayer, win);
 
-  if (board.every(cell => cell !== '')) {
-    statusText.textContent = `It's a draw! 🤝`;
-    isGameOver = true;
-    return;
-  }
+  if (board.every(cell => cell !== '')) return draw();
 
   currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
 
   if (vsComputer && currentPlayer === 'O') {
-    setTimeout(computerMove, 500);
+    setTimeout(computerMove, 400);
   } else {
     statusText.textContent = `Current Player: ${currentPlayer}`;
   }
 }
 
-// Place X or O image in cell
-function makeMove(index, player){
+function makeMove(index, player) {
   board[index] = player;
   const img = document.createElement('img');
   img.src = player === 'X' ? X_IMG : O_IMG;
   img.style.width = '60px';
   img.style.height = '60px';
-  img.style.pointerEvents = 'none';
   cells[index].innerHTML = '';
   cells[index].appendChild(img);
 }
 
-// Show winning line
-function showWinningLine(style) {
-  winLine.style.transform = style;
+function endGame(player, win) {
+  winLine.style.transform = win.style;
   winLine.classList.add('show');
+  statusText.textContent = `${player} wins! 🎉`;
+  isGameOver = true;
 }
 
-// Check winning
-function checkWin(player) {
+function draw() {
+  statusText.textContent = `It's a draw! 🤝`;
+  isGameOver = true;
+}
+
+function checkWin(p) {
   for (let obj of winCombos) {
-    if (obj.combo.every(index => board[index] === player)) {
-      return obj;
-    }
+    if (obj.combo.every(i => board[i] === p)) return obj;
   }
   return null;
 }
 
-// Computer moves
 function computerMove() {
   let move;
-  if (computerLevel === 'easy') move = randomMove();
-  else if (computerLevel === 'medium') move = mediumMove();
+  if (computerLevel === "easy") move = randomMove();
+  else if (computerLevel === "medium") move = mediumMove();
   else move = hardMove();
 
   makeMove(move, 'O');
 
   const win = checkWin('O');
-  if (win) {
-    showWinningLine(win.style);
-    statusText.textContent = `O wins! 🎉`;
-    isGameOver = true;
-    return;
-  }
+  if (win) return endGame('O', win);
 
-  if (board.every(cell => cell !== '')) {
-    statusText.textContent = `It's a draw! 🤝`;
-    isGameOver = true;
-    return;
-  }
+  if (board.every(c => c !== '')) return draw();
 
   currentPlayer = 'X';
   statusText.textContent = `Current Player: ${currentPlayer}`;
 }
 
-// Easy: random move
 function randomMove() {
-  let empty = board.map((val,i)=> val===''?i:null).filter(v=>v!==null);
+  let empty = board.map((v,i)=> v===''?i:null).filter(v=>v!==null);
   return empty[Math.floor(Math.random()*empty.length)];
 }
 
-// Medium: block or win
 function mediumMove() {
-  for (let i=0;i<board.length;i++){
+  for (let i=0;i<9;i++){
     if(board[i]===''){ board[i]='O'; if(checkWin('O')) return i; board[i]=''; }
   }
-  for (let i=0;i<board.length;i++){
-    if(board[i]===''){ board[i]='X'; if(checkWin('X')){ board[i]=''; return i;} board[i]=''; }
+  for (let i=0;i<9;i++){
+    if(board[i]===''){ board[i]='X'; if(checkWin('X')) return i; board[i]=''; }
   }
   return randomMove();
 }
 
-// Hard: minimax
 function hardMove(){
-  let best=-Infinity, move;
-  for(let i=0;i<board.length;i++){
-    if(board[i]===''){ board[i]='O'; let score=minimax(board,0,false); board[i]=''; if(score>best){best=score;move=i;} }
+  let best = -Infinity, move;
+  for (let i=0;i<9;i++){
+    if(board[i]===''){
+      board[i]='O';
+      let score = minimax(board, 0, false);
+      board[i]='';
+      if(score > best){ best = score; move = i; }
+    }
   }
   return move;
 }
 
 function minimax(b,d,isMax){
-  if(checkWin('O')) return 10-d;
-  if(checkWin('X')) return d-10;
+  if(checkWin('O')) return 10 - d;
+  if(checkWin('X')) return d - 10;
   if(b.every(c=>c!=='')) return 0;
+
   if(isMax){
-    let best=-Infinity;
-    for(let i=0;i<b.length;i++){
-      if(b[i]===''){ b[i]='O'; let s=minimax(b,d+1,false); b[i]=''; best=Math.max(s,best); }
+    let best = -Infinity;
+    for (let i=0;i<9;i++){
+      if(b[i]===''){
+        b[i]='O';
+        best = Math.max(best, minimax(b, d+1, false));
+        b[i]='';
+      }
     }
     return best;
-  }else{
-    let best=Infinity;
-    for(let i=0;i<b.length;i++){
-      if(b[i]===''){ b[i]='X'; let s=minimax(b,d+1,true); b[i]=''; best=Math.min(s,best); }
+  } else {
+    let best = Infinity;
+    for (let i=0;i<9;i++){
+      if(b[i]===''){
+        b[i]='X';
+        best = Math.min(best, minimax(b, d+1, true));
+        b[i]='';
+      }
     }
     return best;
   }
 }
 
-// Reset game
 resetBtn.addEventListener('click', resetGame);
 
-function resetGame(){
+function resetGame() {
   board = ['', '', '', '', '', '', '', '', ''];
-  currentPlayer='X';
-  isGameOver=false;
+  currentPlayer = 'X';
+  isGameOver = false;
+  cells.forEach(c => c.innerHTML = '');
   winLine.classList.remove('show');
-  winLine.style.width='0';
-  cells.forEach(c=>c.innerHTML='');
-  statusText.textContent=`Current Player: ${currentPlayer}`;
+  winLine.style.width = '0';
+  statusText.textContent = "Current Player: X";
 }

@@ -1,43 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tic-Tac-Toe</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Tic-Tac-Toe</h1>
 
-  <div class="options">
-    <button id="twoPlayerBtn">Play with Friend</button>
-    <button id="computerBtn">Play with Computer</button>
-  </div>
+<div class="border-frame">
+    <div class="container">
 
-  <div class="difficulty-container" id="difficultyContainer" style="display:none;">
-    <h3>Select Difficulty:</h3>
-    <button class="difficulty" data-level="easy">Easy</button>
-    <button class="difficulty" data-level="medium">Intermediate</button>
-    <button class="difficulty" data-level="hard">Hard</button>
-  </div>
+        <h1 class="title">Tic Tac Toe</h1>
 
-  <div class="game-container">
-    <div class="board">
-      <div class="cell" data-index="0"></div>
-      <div class="cell" data-index="1"></div>
-      <div class="cell" data-index="2"></div>
-      <div class="cell" data-index="3"></div>
-      <div class="cell" data-index="4"></div>
-      <div class="cell" data-index="5"></div>
-      <div class="cell" data-index="6"></div>
-      <div class="cell" data-index="7"></div>
-      <div class="cell" data-index="8"></div>
+        <div class="mode-buttons">
+            <button id="twoPlayerBtn">Play With Friend</button>
+            <button id="computerBtn">Play With Computer</button>
+        </div>
+
+        <div id="difficultyContainer" class="difficulty-container">
+            <button class="difficulty" data-level="easy">Easy</button>
+            <button class="difficulty" data-level="medium">Medium</button>
+            <button class="difficulty" data-level="hard">Hard</button>
+        </div>
+
+        <p class="status">Current Player: X</p>
+
+        <div class="board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+
+            <div id="winLine" class="win-line"></div>
+        </div>
+
+        <button id="resetBtn" class="reset-btn">Reset</button>
+
     </div>
-    <div class="line" id="winLine"></div>
-  </div>
-
-  <div class="status"></div>
-  <button id="resetBtn">Restart Game</button>
+</div>
 
 <script src="script.js"></script>
 </body>
