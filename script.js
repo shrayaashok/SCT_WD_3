@@ -5,6 +5,7 @@ const twoPlayerBtn = document.getElementById('twoPlayerBtn');
 const computerBtn = document.getElementById('computerBtn');
 const difficultyContainer = document.getElementById('difficultyContainer');
 const difficultyBtns = document.querySelectorAll('.difficulty');
+const winLine = document.getElementById('winLine');
 
 let board = ['', '', '', '', '', '', '', '', ''];
 let currentPlayer = 'X';
@@ -12,11 +13,16 @@ let isGameOver = false;
 let vsComputer = false;
 let computerLevel = 'easy';
 
-// Winning combinations
+// Winning combinations with line positions
 const winCombos = [
-  [0,1,2],[3,4,5],[6,7,8],
-  [0,3,6],[1,4,7],[2,5,8],
-  [0,4,8],[2,4,6]
+  { combo:[0,1,2], style: 'translateY(0px) scaleX(1) rotate(0deg)' },
+  { combo:[3,4,5], style: 'translateY(125px) scaleX(1) rotate(0deg)' },
+  { combo:[6,7,8], style: 'translateY(250px) scaleX(1) rotate(0deg)' },
+  { combo:[0,3,6], style: 'translateX(0px) scaleX(1) rotate(90deg)' },
+  { combo:[1,4,7], style: 'translateX(125px) scaleX(1) rotate(90deg)' },
+  { combo:[2,5,8], style: 'translateX(250px) scaleX(1) rotate(90deg)' },
+  { combo:[0,4,8], style: 'translate(0,0) rotate(45deg) scaleX(1.5)' },
+  { combo:[2,4,6], style: 'translate(0,0) rotate(-45deg) scaleX(1.5)' },
 ];
 
 // Mode selection
@@ -44,13 +50,14 @@ cells.forEach(cell => cell.addEventListener('click', cellClick));
 
 function cellClick(e) {
   const index = e.target.dataset.index;
-
   if (board[index] !== '' || isGameOver) return;
 
   board[index] = currentPlayer;
   e.target.textContent = currentPlayer;
 
-  if (checkWin(currentPlayer)) {
+  const win = checkWin(currentPlayer);
+  if (win) {
+    showWinningLine(win.style);
     statusText.textContent = `${currentPlayer} wins! 🎉`;
     isGameOver = true;
     return;
@@ -71,28 +78,35 @@ function cellClick(e) {
   }
 }
 
-// Check winning
-function checkWin(player) {
-  return winCombos.some(combo => {
-    return combo.every(index => board[index] === player);
-  });
+// Show winning line
+function showWinningLine(style) {
+  winLine.style.transform = style;
+  winLine.classList.add('show');
 }
 
-// Computer move
+// Check winning
+function checkWin(player) {
+  for (let obj of winCombos) {
+    if (obj.combo.every(index => board[index] === player)) {
+      return obj;
+    }
+  }
+  return null;
+}
+
+// Computer moves
 function computerMove() {
   let move;
-  if (computerLevel === 'easy') {
-    move = randomMove();
-  } else if (computerLevel === 'medium') {
-    move = mediumMove();
-  } else {
-    move = hardMove();
-  }
+  if (computerLevel === 'easy') move = randomMove();
+  else if (computerLevel === 'medium') move = mediumMove();
+  else move = hardMove();
 
   board[move] = 'O';
   cells[move].textContent = 'O';
 
-  if (checkWin('O')) {
+  const win = checkWin('O');
+  if (win) {
+    showWinningLine(win.style);
     statusText.textContent = `O wins! 🎉`;
     isGameOver = true;
     return;
@@ -110,90 +124,58 @@ function computerMove() {
 
 // Easy: random move
 function randomMove() {
-  let emptyIndices = board.map((val, idx) => val === '' ? idx : null).filter(val => val !== null);
-  return emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+  let empty = board.map((val,i)=> val===''?i:null).filter(v=>v!==null);
+  return empty[Math.floor(Math.random()*empty.length)];
 }
 
-// Medium: block opponent or random
+// Medium: block or win
 function mediumMove() {
-  // First, try to win
-  for (let i = 0; i < board.length; i++) {
-    if (board[i] === '') {
-      board[i] = 'O';
-      if (checkWin('O')) return i;
-      board[i] = '';
-    }
+  for (let i=0;i<board.length;i++){
+    if(board[i]===''){ board[i]='O'; if(checkWin('O')) return i; board[i]=''; }
   }
-  // Then block player
-  for (let i = 0; i < board.length; i++) {
-    if (board[i] === '') {
-      board[i] = 'X';
-      if (checkWin('X')) {
-        board[i] = '';
-        return i;
-      }
-      board[i] = '';
-    }
+  for (let i=0;i<board.length;i++){
+    if(board[i]===''){ board[i]='X'; if(checkWin('X')){ board[i]=''; return i;} board[i]=''; }
   }
-  // Otherwise, random
   return randomMove();
 }
 
-// Hard: minimax algorithm
-function hardMove() {
-  let bestScore = -Infinity;
-  let move;
-  for (let i = 0; i < board.length; i++) {
-    if (board[i] === '') {
-      board[i] = 'O';
-      let score = minimax(board, 0, false);
-      board[i] = '';
-      if (score > bestScore) {
-        bestScore = score;
-        move = i;
-      }
-    }
+// Hard: minimax
+function hardMove(){
+  let best=-Infinity, move;
+  for(let i=0;i<board.length;i++){
+    if(board[i]===''){ board[i]='O'; let score=minimax(board,0,false); board[i]=''; if(score>best){best=score;move=i;} }
   }
   return move;
 }
 
-function minimax(boardState, depth, isMaximizing) {
-  if (checkWin('O')) return 10 - depth;
-  if (checkWin('X')) return depth - 10;
-  if (boardState.every(cell => cell !== '')) return 0;
-
-  if (isMaximizing) {
-    let bestScore = -Infinity;
-    for (let i = 0; i < boardState.length; i++) {
-      if (boardState[i] === '') {
-        boardState[i] = 'O';
-        let score = minimax(boardState, depth + 1, false);
-        boardState[i] = '';
-        bestScore = Math.max(score, bestScore);
-      }
+function minimax(b,d,isMax){
+  if(checkWin('O')) return 10-d;
+  if(checkWin('X')) return d-10;
+  if(b.every(c=>c!=='')) return 0;
+  if(isMax){
+    let best=-Infinity;
+    for(let i=0;i<b.length;i++){
+      if(b[i]===''){ b[i]='O'; let s=minimax(b,d+1,false); b[i]=''; best=Math.max(s,best); }
     }
-    return bestScore;
-  } else {
-    let bestScore = Infinity;
-    for (let i = 0; i < boardState.length; i++) {
-      if (boardState[i] === '') {
-        boardState[i] = 'X';
-        let score = minimax(boardState, depth + 1, true);
-        boardState[i] = '';
-        bestScore = Math.min(score, bestScore);
-      }
+    return best;
+  }else{
+    let best=Infinity;
+    for(let i=0;i<b.length;i++){
+      if(b[i]===''){ b[i]='X'; let s=minimax(b,d+1,true); b[i]=''; best=Math.min(s,best); }
     }
-    return bestScore;
+    return best;
   }
 }
 
 // Reset game
 resetBtn.addEventListener('click', resetGame);
 
-function resetGame() {
+function resetGame(){
   board = ['', '', '', '', '', '', '', '', ''];
-  currentPlayer = 'X';
-  isGameOver = false;
-  statusText.textContent = `Current Player: ${currentPlayer}`;
-  cells.forEach(cell => cell.textContent = '');
+  currentPlayer='X';
+  isGameOver=false;
+  winLine.classList.remove('show');
+  winLine.style.width='0';
+  cells.forEach(c=>c.textContent='');
+  statusText.textContent=`Current Player: ${currentPlayer}`;
 }
