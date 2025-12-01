@@ -13,6 +13,10 @@ let isGameOver = false;
 let vsComputer = false;
 let computerLevel = 'easy';
 
+// X and O images
+const X_IMG = 'https://i.imgur.com/3e1XJrA.png';
+const O_IMG = 'https://i.imgur.com/Yz9tXKU.png';
+
 // Winning combinations with line positions
 const winCombos = [
   { combo:[0,1,2], style: 'translateY(0px) scaleX(1) rotate(0deg)' },
@@ -52,8 +56,7 @@ function cellClick(e) {
   const index = e.target.dataset.index;
   if (board[index] !== '' || isGameOver) return;
 
-  board[index] = currentPlayer;
-  e.target.textContent = currentPlayer;
+  makeMove(index, currentPlayer);
 
   const win = checkWin(currentPlayer);
   if (win) {
@@ -76,6 +79,18 @@ function cellClick(e) {
   } else {
     statusText.textContent = `Current Player: ${currentPlayer}`;
   }
+}
+
+// Place X or O image in cell
+function makeMove(index, player){
+  board[index] = player;
+  const img = document.createElement('img');
+  img.src = player === 'X' ? X_IMG : O_IMG;
+  img.style.width = '60px';
+  img.style.height = '60px';
+  img.style.pointerEvents = 'none';
+  cells[index].innerHTML = '';
+  cells[index].appendChild(img);
 }
 
 // Show winning line
@@ -101,8 +116,7 @@ function computerMove() {
   else if (computerLevel === 'medium') move = mediumMove();
   else move = hardMove();
 
-  board[move] = 'O';
-  cells[move].textContent = 'O';
+  makeMove(move, 'O');
 
   const win = checkWin('O');
   if (win) {
@@ -176,6 +190,6 @@ function resetGame(){
   isGameOver=false;
   winLine.classList.remove('show');
   winLine.style.width='0';
-  cells.forEach(c=>c.textContent='');
+  cells.forEach(c=>c.innerHTML='');
   statusText.textContent=`Current Player: ${currentPlayer}`;
 }
