@@ -1,90 +1,72 @@
 body {
-  margin: 0;
-  padding: 0;
-  background-color: #E6E6FA; /* lavender */
-  font-family: 'Arial', sans-serif;
-  text-align: center;
+    margin: 0;
+    padding: 0;
+    background-color: #E6E6FA;  /* lavender background */
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
 }
 
-
-
-/* center content */
 .container {
-  max-width: 800px;
-  margin: auto;
+    text-align: center;
+    margin-top: 40px;
+    padding: 20px;
 }
 
-/* title */
-.title {
-  color: #4B0082;
-  text-shadow: 2px 2px 5px #9370DB;
+h1 {
+    color: #4B0082;
+    font-size: 45px;
+    margin-bottom: 20px;
 }
 
-/* buttons */
-.mode-buttons button,
-.difficulty-container button,
-.reset-btn {
-  background-color: #C8A2C8;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  margin: 10px;
-  font-size: 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: 0.3s;
+/* Buttons */
+button {
+    padding: 12px 20px;
+    font-size: 16px;
+    background-color: #D8BFD8;
+    border: none;
+    color: #4B0082;
+    border-radius: 10px;
+    margin: 8px;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
 button:hover {
-  background-color: #B284BE;
+    background-color: #C9A0DC;
 }
 
-.difficulty-container {
-  display: none;
-}
-
-.status {
-  font-size: 20px;
-  margin: 15px 0;
-  color: #4B0082;
-}
-
-/* game board */
+/* Board */
 .board {
-  position: relative;
-  width: 390px;
-  height: 390px;
-  display: grid;
-  margin: auto;
-  grid-template-columns: repeat(3, 130px);
-  grid-template-rows: repeat(3, 130px);
-  gap: 5px;
+    width: 330px;
+    display: grid;
+    grid-template-columns: repeat(3, 110px);
+    gap: 8px;
+    margin: 25px auto;
 }
 
 .cell {
-  background: white;
-  border-radius: 15px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
+    width: 110px;
+    height: 110px;
+    background-color: #F3E5F5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 70px;
+    color: #4B0082;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-/* Winning line */
-.win-line {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 6px;
-  background-color: #BA55D3;
-  border-radius: 5px;
-  transform-origin: left center;
-  transition: 0.5s ease-in-out;
-  opacity: 0;
+.cell:hover {
+    background-color: #E1C9E8;
 }
 
-.win-line.show {
-  width: 390px;
-  opacity: 1;
+.reset-btn {
+    margin-top: 20px;
+}
+
+.difficulty-menu {
+    display: none;
 }

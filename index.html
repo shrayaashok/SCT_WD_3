@@ -1,49 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic Tac Toe</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8"    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic Tac Toe - Lavender Theme</title>
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div class="border-frame">
     <div class="container">
-
-        <h1 class="title">Tic Tac Toe</h1>
+        <h1>Tic Tac Toe</h1>
 
         <div class="mode-buttons">
-            <button id="twoPlayerBtn">Play With Friend</button>
-            <button id="computerBtn">Play With Computer</button>
+            <button onclick="startFriendMode()">Play With Friend</button>
+            <button onclick="toggleDifficultyMenu()">Play With Computer</button>
         </div>
 
-        <div id="difficultyContainer" class="difficulty-container">
-            <button class="difficulty" data-level="easy">Easy</button>
-            <button class="difficulty" data-level="medium">Medium</button>
-            <button class="difficulty" data-level="hard">Hard</button>
+        <div id="difficultyMenu" class="difficulty-menu">
+            <button onclick="startComputerMode('easy')">Easy</button>
+            <button onclick="startComputerMode('medium')">Intermediate</button>
+            <button onclick="startComputerMode('hard')">Hard</button>
         </div>
 
-        <p class="status">Current Player: X</p>
+        <div id="gameBoard" class="board"></div>
 
-        <div class="board">
-            <div class="cell" data-index="0"></div>
-            <div class="cell" data-index="1"></div>
-            <div class="cell" data-index="2"></div>
-            <div class="cell" data-index="3"></div>
-            <div class="cell" data-index="4"></div>
-            <div class="cell" data-index="5"></div>
-            <div class="cell" data-index="6"></div>
-            <div class="cell" data-index="7"></div>
-            <div class="cell" data-index="8"></div>
+        <p id="statusText"></p>
 
-            <div id="winLine" class="win-line"></div>
-        </div>
-
-        <button id="resetBtn" class="reset-btn">Reset</button>
-
+        <button id="resetBtn" class="reset-btn" onclick="resetGame()">Reset Game</button>
     </div>
-</div>
 
 <script src="script.js"></script>
 </body>
