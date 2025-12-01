@@ -1,15 +1,17 @@
 body {
   font-family: 'Arial', sans-serif;
   text-align: center;
-  background: url('https://i.imgur.com/4B7bT3Y.png') repeat; /* cute X and O pattern */
-  background-size: 100px;
-  color: #333;
+  background-color: #E6E6FA; /* Lavender background */
+  background-image: url('https://i.imgur.com/6R7Kq0U.png'); /* X and O pattern */
+  background-repeat: repeat;
+  background-size: 80px 80px; /* adjust size of pattern */
+  color: #4B0082; /* Darker purple text */
   margin: 0;
   padding: 20px;
 }
 
 h1 {
-  color: #ff1493;
+  color: #9370DB; /* Medium purple for header */
   text-shadow: 2px 2px #fff;
 }
 
@@ -20,7 +22,7 @@ h1 {
   margin: 10px;
   font-size: 16px;
   cursor: pointer;
-  background-color: #ff69b4;
+  background-color: #BA55D3; /* Purple buttons */
   color: white;
   border: none;
   border-radius: 5px;
@@ -30,7 +32,7 @@ h1 {
 .options button:hover,
 #resetBtn:hover,
 .difficulty:hover {
-  background-color: #ff1493;
+  background-color: #8A2BE2; /* Darker purple on hover */
 }
 
 .board {
@@ -45,7 +47,7 @@ h1 {
 .cell {
   width: 120px;
   height: 120px;
-  background-color: #fff;
+  background-color: #F8F8FF; /* Lavender blush cell background */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -53,19 +55,19 @@ h1 {
   cursor: pointer;
   border-radius: 10px;
   transition: 0.3s;
-  border: 3px solid #ff69b4;
+  border: 3px solid #9370DB; /* Purple border */
   position: relative;
   z-index: 1;
 }
 
 .cell:hover {
-  background-color: #ffe6f0;
+  background-color: #E0E0FF;
 }
 
 .status {
   font-size: 20px;
   margin: 15px 0;
-  color: #ff1493;
+  color: #4B0082;
 }
 
 .difficulty-container h3 {
@@ -76,7 +78,7 @@ h1 {
 .line {
   position: absolute;
   height: 6px;
-  background-color: #ff1493;
+  background-color: #BA55D3; /* purple winning line */
   top: 0;
   left: 0;
   width: 0;
@@ -91,7 +93,7 @@ h1 {
 }
 
 @keyframes flash {
-  0% { background-color: #ff1493; }
-  50% { background-color: #ff69b4; }
-  100% { background-color: #ff1493; }
+  0% { background-color: #BA55D3; }
+  50% { background-color: #8A2BE2; }
+  100% { background-color: #BA55D3; }
 }
