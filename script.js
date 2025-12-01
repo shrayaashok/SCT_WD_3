@@ -1,140 +1,153 @@
-const cells = document.querySelectorAll(".cell");
-const statusText = document.querySelector(".status");
-const pvpBtn = document.getElementById("pvpBtn");
-const cpuBtn = document.getElementById("cpuBtn");
-const levelSelect = document.getElementById("levelSelect");
-const resetBtn = document.getElementById("resetBtn");
-const gameContainer = document.querySelector(".game-container");
+const cells = document.querySelectorAll('.cell');
+const statusText = document.querySelector('.status');
+const resetBtn = document.getElementById('resetBtn');
+const twoPlayerBtn = document.getElementById('twoPlayerBtn');
+const computerBtn = document.getElementById('computerBtn');
+const difficultyContainer = document.getElementById('difficultyContainer');
+const difficultyBtns = document.querySelectorAll('.difficulty');
 
-let board = ["", "", "", "", "", "", "", "", ""];
-let currentPlayer = "X";
+let board = ['', '', '', '', '', '', '', '', ''];
+let currentPlayer = 'X';
 let isGameOver = false;
 let vsComputer = false;
-let difficulty = "easy";
+let computerLevel = 'easy';
 
-// Winning patterns
-const winPatterns = [
+// Winning combinations
+const winCombos = [
   [0,1,2],[3,4,5],[6,7,8],
   [0,3,6],[1,4,7],[2,5,8],
   [0,4,8],[2,4,6]
 ];
 
-// When Play With Friend
-pvpBtn.addEventListener("click", () => {
+// Mode selection
+twoPlayerBtn.addEventListener('click', () => {
   vsComputer = false;
-  startGame();
+  difficultyContainer.style.display = 'none';
+  resetGame();
 });
 
-// When Play vs Computer
-cpuBtn.addEventListener("click", () => {
-  levelSelect.classList.remove("hidden");
+computerBtn.addEventListener('click', () => {
+  vsComputer = true;
+  difficultyContainer.style.display = 'block';
 });
 
-// Select difficulty level
-levelSelect.querySelectorAll("button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    difficulty = btn.dataset.level;
-    vsComputer = true;
-    startGame();
+// Difficulty selection
+difficultyBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    computerLevel = btn.dataset.level;
+    resetGame();
   });
 });
 
-function startGame() {
-  levelSelect.classList.add("hidden");
-  gameContainer.classList.remove("hidden");
-  resetGame();
-}
+// Cell click
+cells.forEach(cell => cell.addEventListener('click', cellClick));
 
-cells.forEach(cell => cell.addEventListener("click", handleClick));
+function cellClick(e) {
+  const index = e.target.dataset.index;
 
-function handleClick(e) {
-  const idx = e.target.dataset.index;
-  if (board[idx] !== "" || isGameOver) return;
+  if (board[index] !== '' || isGameOver) return;
 
-  board[idx] = currentPlayer;
+  board[index] = currentPlayer;
   e.target.textContent = currentPlayer;
 
   if (checkWin(currentPlayer)) {
-    statusText.textContent = `${currentPlayer} Wins! 🎉`;
+    statusText.textContent = `${currentPlayer} wins! 🎉`;
     isGameOver = true;
     return;
   }
 
-  if (board.every(c => c !== "")) {
-    statusText.textContent = "It's a Draw! 🤝";
+  if (board.every(cell => cell !== '')) {
+    statusText.textContent = `It's a draw! 🤝`;
     isGameOver = true;
     return;
   }
 
-  currentPlayer = currentPlayer === "X" ? "O" : "X";
+  currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
 
-  if (vsComputer && currentPlayer === "O") {
+  if (vsComputer && currentPlayer === 'O') {
     setTimeout(computerMove, 500);
+  } else {
+    statusText.textContent = `Current Player: ${currentPlayer}`;
   }
 }
 
+// Check winning
+function checkWin(player) {
+  return winCombos.some(combo => {
+    return combo.every(index => board[index] === player);
+  });
+}
+
+// Computer move
 function computerMove() {
   let move;
+  if (computerLevel === 'easy') {
+    move = randomMove();
+  } else if (computerLevel === 'medium') {
+    move = mediumMove();
+  } else {
+    move = hardMove();
+  }
 
-  if (difficulty === "easy") move = randomMove();
-  else if (difficulty === "medium") move = mediumMove();
-  else move = bestMove(); // hard mode = unbeatable
+  board[move] = 'O';
+  cells[move].textContent = 'O';
 
-  board[move] = "O";
-  cells[move].textContent = "O";
-
-  if (checkWin("O")) {
-    statusText.textContent = "Computer Wins! 🤖";
+  if (checkWin('O')) {
+    statusText.textContent = `O wins! 🎉`;
     isGameOver = true;
     return;
   }
 
-  if (board.every(c => c !== "")) {
-    statusText.textContent = "It's a Draw!";
+  if (board.every(cell => cell !== '')) {
+    statusText.textContent = `It's a draw! 🤝`;
     isGameOver = true;
     return;
   }
 
-  currentPlayer = "X";
+  currentPlayer = 'X';
+  statusText.textContent = `Current Player: ${currentPlayer}`;
 }
 
-// EASY MODE: Random
+// Easy: random move
 function randomMove() {
-  const empty = board.map((v, i) => v === "" ? i : null).filter(i => i !== null);
-  return empty[Math.floor(Math.random() * empty.length)];
+  let emptyIndices = board.map((val, idx) => val === '' ? idx : null).filter(val => val !== null);
+  return emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
 }
 
-// MEDIUM MODE: Block + Random
+// Medium: block opponent or random
 function mediumMove() {
-  // 1. Try to win
-  for (let combo of winPatterns) {
-    let [a, b, c] = combo;
-    let line = [board[a], board[b], board[c]];
-    if (line.filter(v => v === "O").length === 2 && line.includes("")) return combo[line.indexOf("")];
+  // First, try to win
+  for (let i = 0; i < board.length; i++) {
+    if (board[i] === '') {
+      board[i] = 'O';
+      if (checkWin('O')) return i;
+      board[i] = '';
+    }
   }
-
-  // 2. Try to block
-  for (let combo of winPatterns) {
-    let [a, b, c] = combo;
-    let line = [board[a], board[b], board[c]];
-    if (line.filter(v => v === "X").length === 2 && line.includes("")) return combo[line.indexOf("")];
+  // Then block player
+  for (let i = 0; i < board.length; i++) {
+    if (board[i] === '') {
+      board[i] = 'X';
+      if (checkWin('X')) {
+        board[i] = '';
+        return i;
+      }
+      board[i] = '';
+    }
   }
-
-  // 3. Else random
+  // Otherwise, random
   return randomMove();
 }
 
-// HARD MODE: Unbeatable Minimax AI
-function bestMove() {
+// Hard: minimax algorithm
+function hardMove() {
   let bestScore = -Infinity;
   let move;
-
-  for (let i = 0; i < 9; i++) {
-    if (board[i] === "") {
-      board[i] = "O";
+  for (let i = 0; i < board.length; i++) {
+    if (board[i] === '') {
+      board[i] = 'O';
       let score = minimax(board, 0, false);
-      board[i] = "";
-
+      board[i] = '';
       if (score > bestScore) {
         bestScore = score;
         move = i;
@@ -144,57 +157,43 @@ function bestMove() {
   return move;
 }
 
-const scores = { X: -1, O: 1, tie: 0 };
-
-function minimax(newBoard, depth, isMaximizing) {
-  let result = getWinner();
-  if (result !== null) return scores[result];
+function minimax(boardState, depth, isMaximizing) {
+  if (checkWin('O')) return 10 - depth;
+  if (checkWin('X')) return depth - 10;
+  if (boardState.every(cell => cell !== '')) return 0;
 
   if (isMaximizing) {
-    let best = -Infinity;
-    for (let i=0;i<9;i++){
-      if (newBoard[i] === "") {
-        newBoard[i] = "O";
-        best = Math.max(best, minimax(newBoard, depth+1, false));
-        newBoard[i] = "";
+    let bestScore = -Infinity;
+    for (let i = 0; i < boardState.length; i++) {
+      if (boardState[i] === '') {
+        boardState[i] = 'O';
+        let score = minimax(boardState, depth + 1, false);
+        boardState[i] = '';
+        bestScore = Math.max(score, bestScore);
       }
     }
-    return best;
+    return bestScore;
   } else {
-    let best = Infinity;
-    for (let i=0;i<9;i++){
-      if (newBoard[i] === "") {
-        newBoard[i] = "X";
-        best = Math.min(best, minimax(newBoard, depth+1, true));
-        newBoard[i] = "";
+    let bestScore = Infinity;
+    for (let i = 0; i < boardState.length; i++) {
+      if (boardState[i] === '') {
+        boardState[i] = 'X';
+        let score = minimax(boardState, depth + 1, true);
+        boardState[i] = '';
+        bestScore = Math.min(score, bestScore);
       }
     }
-    return best;
+    return bestScore;
   }
 }
 
-function getWinner() {
-  for (let combo of winPatterns) {
-    const [a,b,c] = combo;
-    if (board[a] && board[a] === board[b] && board[b] === board[c]) return board[a];
-  }
-  if (board.every(c => c !== "")) return "tie";
-  return null;
-}
-
-function checkWin(player) {
-  return winPatterns.some(pattern => pattern.every(i => board[i] === player));
-}
-
-
-// RESET
-resetBtn.addEventListener("click", resetGame);
+// Reset game
+resetBtn.addEventListener('click', resetGame);
 
 function resetGame() {
-  board = ["","","","","","","","",""];
-  currentPlayer = "X";
+  board = ['', '', '', '', '', '', '', '', ''];
+  currentPlayer = 'X';
   isGameOver = false;
-  statusText.textContent = "Your turn!";
-  cells.forEach(cell => cell.textContent = "");
-  resetBtn.classList.remove("hidden");
+  statusText.textContent = `Current Player: ${currentPlayer}`;
+  cells.forEach(cell => cell.textContent = '');
 }

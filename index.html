@@ -1,44 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tic Tac Toe - Lavender Edition</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tic-Tac-Toe</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <h1>Tic-Tac-Toe</h1>
 
-<h1 class="title">Lavender Tic Tac Toe</h1>
-
-<div class="menu">
-  <button id="pvpBtn">Play With Friend</button>
-  <button id="cpuBtn">Play With Computer</button>
-
-  <div id="levelSelect" class="hidden">
-    <h3>Select Difficulty</h3>
-    <button data-level="easy">Easy</button>
-    <button data-level="medium">Intermediate</button>
-    <button data-level="hard">Hard</button>
+  <div class="options">
+    <button id="twoPlayerBtn">Play with Friend</button>
+    <button id="computerBtn">Play with Computer</button>
   </div>
-</div>
 
-<div class="game-container hidden">
-  <div class="board">
-    <div class="cell" data-index="0"></div>
-    <div class="cell" data-index="1"></div>
-    <div class="cell" data-index="2"></div>
-    <div class="cell" data-index="3"></div>
-    <div class="cell" data-index="4"></div>
-    <div class="cell" data-index="5"></div>
-    <div class="cell" data-index="6"></div>
-    <div class="cell" data-index="7"></div>
-    <div class="cell" data-index="8"></div>
+  <div class="difficulty-container" id="difficultyContainer" style="display:none;">
+    <h3>Select Difficulty:</h3>
+    <button class="difficulty" data-level="easy">Easy</button>
+    <button class="difficulty" data-level="medium">Intermediate</button>
+    <button class="difficulty" data-level="hard">Hard</button>
   </div>
-</div>
 
-<div class="status"></div>
+  <div class="game-container">
+    <div class="board">
+      <div class="cell" data-index="0"></div>
+      <div class="cell" data-index="1"></div>
+      <div class="cell" data-index="2"></div>
+      <div class="cell" data-index="3"></div>
+      <div class="cell" data-index="4"></div>
+      <div class="cell" data-index="5"></div>
+      <div class="cell" data-index="6"></div>
+      <div class="cell" data-index="7"></div>
+      <div class="cell" data-index="8"></div>
+    </div>
+  </div>
 
-<button id="resetBtn" class="hidden">Restart Game</button>
+  <div class="status"></div>
+  <button id="resetBtn">Restart Game</button>
 
 <script src="script.js"></script>
 </body>
