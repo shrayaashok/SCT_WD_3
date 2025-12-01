@@ -15,7 +15,7 @@ let computerLevel = 'easy';
 
 // X and O images
 const X_IMG = 'images/x.png';
-const O_IMG = 'images/o.png';
+const O_IMG = 'images/y.png';
 
 // Winning combinations with line positions
 const winCombos = [
