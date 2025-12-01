@@ -14,8 +14,8 @@ let vsComputer = false;
 let computerLevel = 'easy';
 
 // X and O images
-const X_IMG = 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Red_X.svg/1200px-Red_X.svg.png';
-const O_IMG = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Blue_circle.svg/1024px-Blue_circle.svg.png';
+const X_IMG = 'images/x.png';
+const O_IMG = 'images/o.png';
 
 // Winning combinations with line positions
 const winCombos = [
