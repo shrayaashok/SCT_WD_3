@@ -1,119 +1,200 @@
+const cells = document.querySelectorAll(".cell");
+const statusText = document.querySelector(".status");
+const pvpBtn = document.getElementById("pvpBtn");
+const cpuBtn = document.getElementById("cpuBtn");
+const levelSelect = document.getElementById("levelSelect");
+const resetBtn = document.getElementById("resetBtn");
+const gameContainer = document.querySelector(".game-container");
+
 let board = ["", "", "", "", "", "", "", "", ""];
 let currentPlayer = "X";
-let gameActive = false;
+let isGameOver = false;
 let vsComputer = false;
 let difficulty = "easy";
 
+// Winning patterns
 const winPatterns = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8],
-    [0, 3, 6], [1, 4, 7], [2, 5, 8],
-    [0, 4, 8], [2, 4, 6]
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6]
 ];
 
-function generateBoard() {
-    const boardDiv = document.getElementById("gameBoard");
-    boardDiv.innerHTML = "";
+// When Play With Friend
+pvpBtn.addEventListener("click", () => {
+  vsComputer = false;
+  startGame();
+});
 
-    for (let i = 0; i < 9; i++) {
-        const cell = document.createElement("div");
-        cell.classList.add("cell");
-        cell.dataset.index = i;
-        cell.onclick = handleCellClick;
-        boardDiv.appendChild(cell);
-    }
-}
+// When Play vs Computer
+cpuBtn.addEventListener("click", () => {
+  levelSelect.classList.remove("hidden");
+});
 
-function startFriendMode() {
-    vsComputer = false;
-    resetGame();
-}
-
-function toggleDifficultyMenu() {
-    document.getElementById("difficultyMenu").style.display = "block";
-}
-
-function startComputerMode(level) {
+// Select difficulty level
+levelSelect.querySelectorAll("button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    difficulty = btn.dataset.level;
     vsComputer = true;
-    difficulty = level;
-    resetGame();
+    startGame();
+  });
+});
+
+function startGame() {
+  levelSelect.classList.add("hidden");
+  gameContainer.classList.remove("hidden");
+  resetGame();
 }
 
-function handleCellClick(event) {
-    const index = event.target.dataset.index;
+cells.forEach(cell => cell.addEventListener("click", handleClick));
 
-    if (board[index] !== "" || !gameActive) return;
+function handleClick(e) {
+  const idx = e.target.dataset.index;
+  if (board[idx] !== "" || isGameOver) return;
 
-    board[index] = currentPlayer;
-    event.target.innerText = currentPlayer;
+  board[idx] = currentPlayer;
+  e.target.textContent = currentPlayer;
 
-    if (checkWinner()) return;
+  if (checkWin(currentPlayer)) {
+    statusText.textContent = `${currentPlayer} Wins! 🎉`;
+    isGameOver = true;
+    return;
+  }
 
-    currentPlayer = currentPlayer === "X" ? "O" : "X";
+  if (board.every(c => c !== "")) {
+    statusText.textContent = "It's a Draw! 🤝";
+    isGameOver = true;
+    return;
+  }
 
-    if (vsComputer && currentPlayer === "O") {
-        setTimeout(computerMove, 400);
-    }
+  currentPlayer = currentPlayer === "X" ? "O" : "X";
+
+  if (vsComputer && currentPlayer === "O") {
+    setTimeout(computerMove, 500);
+  }
 }
 
 function computerMove() {
-    let move;
+  let move;
 
-    if (difficulty === "easy") {
-        move = easyMove();
-    } else if (difficulty === "medium") {
-        move = mediumMove();
-    } else {
-        move = bestMove();
-    }
+  if (difficulty === "easy") move = randomMove();
+  else if (difficulty === "medium") move = mediumMove();
+  else move = bestMove(); // hard mode = unbeatable
 
-    board[move] = "O";
-    document.querySelector(`[data-index='${move}']`).innerText = "O";
+  board[move] = "O";
+  cells[move].textContent = "O";
 
-    if (checkWinner()) return;
-    currentPlayer = "X";
+  if (checkWin("O")) {
+    statusText.textContent = "Computer Wins! 🤖";
+    isGameOver = true;
+    return;
+  }
+
+  if (board.every(c => c !== "")) {
+    statusText.textContent = "It's a Draw!";
+    isGameOver = true;
+    return;
+  }
+
+  currentPlayer = "X";
 }
 
-function easyMove() {
-    const available = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
-    return available[Math.floor(Math.random() * available.length)];
+// EASY MODE: Random
+function randomMove() {
+  const empty = board.map((v, i) => v === "" ? i : null).filter(i => i !== null);
+  return empty[Math.floor(Math.random() * empty.length)];
 }
 
+// MEDIUM MODE: Block + Random
 function mediumMove() {
-    return easyMove();
+  // 1. Try to win
+  for (let combo of winPatterns) {
+    let [a, b, c] = combo;
+    let line = [board[a], board[b], board[c]];
+    if (line.filter(v => v === "O").length === 2 && line.includes("")) return combo[line.indexOf("")];
+  }
+
+  // 2. Try to block
+  for (let combo of winPatterns) {
+    let [a, b, c] = combo;
+    let line = [board[a], board[b], board[c]];
+    if (line.filter(v => v === "X").length === 2 && line.includes("")) return combo[line.indexOf("")];
+  }
+
+  // 3. Else random
+  return randomMove();
 }
 
+// HARD MODE: Unbeatable Minimax AI
 function bestMove() {
-    return easyMove();
+  let bestScore = -Infinity;
+  let move;
+
+  for (let i = 0; i < 9; i++) {
+    if (board[i] === "") {
+      board[i] = "O";
+      let score = minimax(board, 0, false);
+      board[i] = "";
+
+      if (score > bestScore) {
+        bestScore = score;
+        move = i;
+      }
+    }
+  }
+  return move;
 }
 
-function checkWinner() {
-    for (let combo of winPatterns) {
-        const [a, b, c] = combo;
+const scores = { X: -1, O: 1, tie: 0 };
 
-        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-            document.getElementById("statusText").innerText = `${board[a]} Wins!`;
-            gameActive = false;
-            return true;
-        }
+function minimax(newBoard, depth, isMaximizing) {
+  let result = getWinner();
+  if (result !== null) return scores[result];
+
+  if (isMaximizing) {
+    let best = -Infinity;
+    for (let i=0;i<9;i++){
+      if (newBoard[i] === "") {
+        newBoard[i] = "O";
+        best = Math.max(best, minimax(newBoard, depth+1, false));
+        newBoard[i] = "";
+      }
     }
-
-    if (!board.includes("")) {
-        document.getElementById("statusText").innerText = "It's a Draw!";
-        gameActive = false;
-        return true;
+    return best;
+  } else {
+    let best = Infinity;
+    for (let i=0;i<9;i++){
+      if (newBoard[i] === "") {
+        newBoard[i] = "X";
+        best = Math.min(best, minimax(newBoard, depth+1, true));
+        newBoard[i] = "";
+      }
     }
-
-    return false;
+    return best;
+  }
 }
+
+function getWinner() {
+  for (let combo of winPatterns) {
+    const [a,b,c] = combo;
+    if (board[a] && board[a] === board[b] && board[b] === board[c]) return board[a];
+  }
+  if (board.every(c => c !== "")) return "tie";
+  return null;
+}
+
+function checkWin(player) {
+  return winPatterns.some(pattern => pattern.every(i => board[i] === player));
+}
+
+
+// RESET
+resetBtn.addEventListener("click", resetGame);
 
 function resetGame() {
-    board = ["", "", "", "", "", "", "", "", ""];
-    currentPlayer = "X";
-    gameActive = true;
-
-    document.getElementById("statusText").innerText = "";
-    generateBoard();
+  board = ["","","","","","","","",""];
+  currentPlayer = "X";
+  isGameOver = false;
+  statusText.textContent = "Your turn!";
+  cells.forEach(cell => cell.textContent = "");
+  resetBtn.classList.remove("hidden");
 }
-
-generateBoard();
-gameActive = true;
